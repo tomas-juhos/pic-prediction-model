@@ -1,0 +1,36 @@
+"""Portfolio Metrics queries."""
+
+
+class Queries:
+    """Portfolio Metrics queries class."""
+
+    UPSERT = (
+        "INSERT INTO regression_metrics ("
+        "       testing_start, "
+        "       testing_end, "
+        "       model, "
+        "       train_criterion, "
+        "       val_criterion, "
+        "       mse, "
+        "       rtn_bottom, "
+        "       rtn_weighted, "
+        "       training_start, "
+        "       training_end, "
+        "       validation_start, "
+        "       validation_end "
+        ") VALUES %s "
+        "ON CONFLICT (testing_start, testing_end, model, train_criterion, val_criterion) DO "
+        "UPDATE SET "
+        "       testing_start=EXCLUDED.testing_start, "
+        "       testing_end=EXCLUDED.testing_end, "
+        "       model=EXCLUDED.model, "
+        "       train_criterion=EXCLUDED.train_criterion, "
+        "       val_criterion=EXCLUDED.val_criterion, "
+        "       mse=EXCLUDED.mse, "
+        "       rtn_bottom=EXCLUDED.rtn_bottom, "
+        "       rtn_weighted=EXCLUDED.rtn_weighted, "
+        "       training_start=EXCLUDED.training_start, "
+        "       training_end=EXCLUDED.training_end, "
+        "       validation_start=EXCLUDED.validation_start, "
+        "       validation_end=EXCLUDED.validation_end; "
+    )
