@@ -1,6 +1,6 @@
 CREATE TABLE regression_parameters (
-    testing_start               TIMESTAMP,
-    testing_end                 TIMESTAMP,
+    testing_start               DATE,
+    testing_end                 DATE,
 
     model                       VARCHAR(20),
     train_criterion             VARCHAR(20),

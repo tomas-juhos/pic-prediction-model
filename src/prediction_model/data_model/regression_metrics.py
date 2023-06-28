@@ -10,9 +10,12 @@ class RegressionMetrics:
     val_criterion: str
     strategy: str
 
-    mse: Decimal
     rtn_bottom: Decimal
     rtn_weighted: Decimal
+
+    mse: Decimal
+    f_pvalue: Decimal
+    r_sqr: Decimal
 
     training_start: datetime
     training_end: datetime
@@ -29,14 +32,17 @@ class RegressionMetrics:
         res.test_criterion = record[3]
         res.val_criterion = record[4]
 
-        res.mse = record[5]
-        res.rtn_bottom = record[6]
-        res.rtn_weighted = record[7]
+        res.rtn_bottom = record[5]
+        res.rtn_weighted = record[6]
 
-        res.training_start = record[8]
-        res.training_end = record[9]
-        res.validation_start = record[10]
-        res.validation_end = record[11]
+        res.mse = record[7]
+        res.f_pvalue = record[8]
+        res.r_sqr = record[9]
+
+        res.training_start = record[10]
+        res.training_end = record[11]
+        res.validation_start = record[12]
+        res.validation_end = record[13]
 
         return res
 
@@ -47,9 +53,11 @@ class RegressionMetrics:
             self.model,
             self.test_criterion,
             self.val_criterion,
-            self.mse,
             self.rtn_bottom,
             self.rtn_weighted,
+            self.mse,
+            self.f_pvalue,
+            self.r_sqr,
             self.training_start,
             self.training_end,
             self.validation_start,

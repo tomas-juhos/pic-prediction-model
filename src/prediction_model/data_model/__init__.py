@@ -18,5 +18,5 @@ __all__ = [
     "Prediction",
     "RegressionParameters",
     "RegressionMetrics",
-    "Sample"
+    "Sample",
 ]

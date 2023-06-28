@@ -21,8 +21,7 @@ logger = logging.getLogger(__name__)
 class Regression:
     alpha = None
     beta = None
-    b_pvals = None
-    f_pval = None
+    f_pvalue = None
     r_sqr = None
 
     def __init__(self, model_name, training_data, train_criterion: str):
@@ -46,6 +45,7 @@ class Regression:
         self.beta = [
             Decimal((float(p))).quantize(Decimal("1.000000")) for p in res.params
         ]
+        self.f_pvalue = res.f_pvalue
 
         return res
 
@@ -66,14 +66,13 @@ class Regression:
         for a in alphas:
             self.model = ols.fit_regularized(alpha=a, L1_wt=l1_wt)
             model_eval: PerformanceMetrics = self.evaluate(self.training_data)
+
             pinv_wexog, _ = pinv_extended(ols.wexog)
             normalized_cov_params = np.dot(pinv_wexog, np.transpose(pinv_wexog))
-            model_results = sm.regression.linear_model.OLSResults(
-                ols,
-                self.model.params,
-                normalized_cov_params
+            model_stats = sm.regression.linear_model.OLSResults(
+                ols, self.model.params, normalized_cov_params
             )
-            models.append((self.model, a, model_eval))
+            models.append((self.model, a, model_eval, model_stats))
 
         chosen_model = min(
             models, key=lambda item: getattr(item[2], self.train_criterion)
@@ -83,9 +82,13 @@ class Regression:
             Decimal((float(p))).quantize(Decimal("1.000000"))
             for p in chosen_model[0].params
         ]
-        # self.b_pvals = [Decimal(float(p)).quantize(Decimal("1.000000")) for p in chosen_model[0].pvalues]
-        # self.f_pval = Decimal(float(chosen_model[0].fp_value)).quantize(Decimal("1.000000"))
-        # self.r_sqr = Decimal(float(chosen_model[0].rsquared)).quantize(Decimal("1.000000"))
+        self.f_pvalue = Decimal(float(chosen_model[3].f_pvalue)).quantize(
+            Decimal("1.000000")
+        )
+        self.r_sqr = Decimal(float(chosen_model[3].rsquared)).quantize(
+            Decimal("1.000000")
+        )
+
         # ACTUAL MODEL
         return chosen_model[0]
 
@@ -124,7 +127,7 @@ class RegressionResults:
     def __init__(self, models: List[Regression], validation_data, test_data):
         self.models = models
         self.validation_data = validation_data
-        self.test_data = test_data
+        self.testing_data = test_data
 
     def select_model(self, val_criterion):
         res = []
@@ -139,29 +142,29 @@ class RegressionResults:
 
     def test_model(
         self,
-        training_range: Tuple[datetime, datetime],
-        validation_range: Tuple[datetime, datetime],
-        testing_range: Tuple[datetime, datetime],
+        sample,
         val_criterion: str,
         selected_model: Regression,
     ):
-        model_eval: PerformanceMetrics = selected_model.evaluate(self.test_data)
+        model_eval: PerformanceMetrics = selected_model.evaluate(self.testing_data)
 
         # MODEL PERFORMANCE METRICS
         metrics = RegressionMetrics.build_record(
             (
-                testing_range[0],
-                testing_range[1],
+                sample.testing_start,
+                sample.testing_end,
                 selected_model.name,
                 selected_model.train_criterion,
                 val_criterion,
-                model_eval.mse,
                 model_eval.rtn_bottom,
                 model_eval.rtn_weighted,
-                training_range[0],
-                training_range[1],
-                validation_range[0],
-                validation_range[1],
+                model_eval.mse,
+                selected_model.f_pvalue,
+                selected_model.r_sqr,
+                sample.training_start,
+                sample.training_end,
+                sample.validation_start,
+                sample.validation_end,
             )
         )
 
@@ -172,8 +175,8 @@ class RegressionResults:
 
         # MODEL PARAMETERS
         key = (
-            testing_range[0],
-            testing_range[1],
+            sample.testing_start,
+            sample.testing_end,
             selected_model.name,
             selected_model.train_criterion,
             val_criterion,
