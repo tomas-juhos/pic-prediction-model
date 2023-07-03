@@ -134,7 +134,10 @@ class RegressionResults:
             model_eval = model.evaluate(self.validation_data)
             res.append((model, model_eval))
 
-        chosen_model = min(res, key=lambda item: getattr(item[1], val_criterion))
+        if val_criterion == "dir_acc":
+            chosen_model = max(res, key=lambda item: getattr(item[1], val_criterion))
+        else:
+            chosen_model = min(res, key=lambda item: getattr(item[1], val_criterion))
 
         # ACTUAL MODEL
         return chosen_model[0]
@@ -157,6 +160,8 @@ class RegressionResults:
                 val_criterion,
                 model_eval.rtn_bottom,
                 model_eval.rtn_weighted,
+                model_eval.rtn_random,
+                model_eval.rtn_benchmark,
                 model_eval.mse,
                 model_eval.rmse,
                 model_eval.mae,

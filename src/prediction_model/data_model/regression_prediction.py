@@ -14,6 +14,7 @@ class RegressionPrediction:
     dir_acc: Optional[int] = None
     chosen_bottom: bool = False
     chosen_weighted: bool = False
+    chosen_random: bool = False
 
     @classmethod
     def build_record(cls, record) -> "RegressionPrediction":
@@ -47,10 +48,14 @@ class RegressionPrediction:
             self.dir_acc,
             self.chosen_bottom,
             self.chosen_weighted,
+            self.chosen_random,
         )
 
     def choose_bottom(self):
         self.chosen_bottom = True
 
     def choose_weighted(self):
+        self.chosen_weighted = True
+
+    def choose_random(self):
         self.chosen_weighted = True

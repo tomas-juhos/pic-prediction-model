@@ -27,9 +27,7 @@ logger = logging.getLogger(__name__)
 class PredictionModel:
     YEARS = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
 
-    # MAYBE ADD DIRECTIONAL ACCURACY (dir_acc)
-    # BUT BEWARE THAT OPTIMIZATION MINIMIZES WHICH IS WRONG IN THAT CASE
-    OPTIMIZATION_CRITERIA = ["mse", "rtn_bottom", "rtn_weighted"]
+    OPTIMIZATION_CRITERIA = ["mse", "dir_acc", "rtn_bottom", "rtn_weighted"]
 
     def __init__(self):
         self.source = source.Source(os.environ.get("SOURCE"))

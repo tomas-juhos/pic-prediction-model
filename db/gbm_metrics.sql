@@ -7,12 +7,14 @@ CREATE TABLE gbm_metrics (
 
     rtn_bottom          DECIMAL(18,4),
     rtn_weighted        DECIMAL(18,4),
+    rtn_random          DECIMAL(18,4),
+    rtn_benchmark       DECIMAL(18,4),
 
-    mse                 DECIMAL(18,6),
-    rmse                DECIMAL(18,6),
-    mae                 DECIMAL(18,6),
-    mape                DECIMAL(18,6),
-    dir_acc             DECIMAL(18,6),
+    mse                 DECIMAL(18,4),
+    rmse                DECIMAL(18,4),
+    mae                 DECIMAL(18,4),
+    mape                DECIMAL(18,4),
+    dir_acc             DECIMAL(5,2),
 
     training_start      DATE,
     training_end        DATE,

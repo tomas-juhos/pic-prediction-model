@@ -13,6 +13,7 @@ CREATE TABLE regression_predictions (
 
     chosen_bottom           BOOLEAN,
     chosen_weighted         BOOLEAN,
+    chosen_random           BOOLEAN,
 
     PRIMARY KEY (model, train_criterion, val_criterion, datadate, gvkey)
 );

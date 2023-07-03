@@ -12,6 +12,8 @@ class RegressionMetrics:
 
     rtn_bottom: Decimal
     rtn_weighted: Decimal
+    rtn_random: Decimal
+    rtn_benchmark: Decimal
 
     mse: Decimal
     rmse: Decimal
@@ -38,19 +40,21 @@ class RegressionMetrics:
 
         res.rtn_bottom = record[5]
         res.rtn_weighted = record[6]
+        res.rtn_random = record[7]
+        res.rtn_benchmark = record[8]
 
-        res.mse = record[7]
-        res.rmse = record[8]
-        res.mae = record[9]
-        res.mape = record[10]
-        res.dir_acc = record[11]
-        res.f_pvalue = record[12]
-        res.r_sqr = record[13]
+        res.mse = record[9]
+        res.rmse = record[10]
+        res.mae = record[11]
+        res.mape = record[12]
+        res.dir_acc = record[13]
+        res.f_pvalue = record[14]
+        res.r_sqr = record[15]
 
-        res.training_start = record[14]
-        res.training_end = record[15]
-        res.validation_start = record[16]
-        res.validation_end = record[17]
+        res.training_start = record[16]
+        res.training_end = record[17]
+        res.validation_start = record[18]
+        res.validation_end = record[19]
 
         return res
 
@@ -63,6 +67,8 @@ class RegressionMetrics:
             self.val_criterion,
             self.rtn_bottom,
             self.rtn_weighted,
+            self.rtn_random,
+            self.rtn_benchmark,
             self.mse,
             self.rmse,
             self.mae,

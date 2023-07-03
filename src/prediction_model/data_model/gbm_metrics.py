@@ -11,6 +11,8 @@ class GBMMetrics:
 
     rtn_bottom: Decimal
     rtn_weighted: Decimal
+    rtn_random: Decimal
+    rtn_benchmark: Decimal
 
     mse: Decimal
     rmse: Decimal
@@ -34,17 +36,19 @@ class GBMMetrics:
 
         res.rtn_bottom = record[4]
         res.rtn_weighted = record[5]
+        res.rtn_random = record[6]
+        res.rtn_benchmark = record[7]
 
-        res.mse = record[6]
-        res.rmse = record[7]
-        res.mae = record[8]
-        res.mape = record[9]
-        res.dir_acc = record[10]
+        res.mse = record[8]
+        res.rmse = record[9]
+        res.mae = record[10]
+        res.mape = record[11]
+        res.dir_acc = record[12]
 
-        res.training_start = record[11]
-        res.training_end = record[12]
-        res.validation_start = record[13]
-        res.validation_end = record[14]
+        res.training_start = record[13]
+        res.training_end = record[14]
+        res.validation_start = record[15]
+        res.validation_end = record[16]
 
         return res
 
@@ -56,6 +60,8 @@ class GBMMetrics:
             self.val_criterion,
             self.rtn_bottom,
             self.rtn_weighted,
+            self.rtn_random,
+            self.rtn_benchmark,
             self.mse,
             self.rmse,
             self.mae,

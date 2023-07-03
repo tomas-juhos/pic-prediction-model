@@ -1,5 +1,6 @@
 from decimal import Decimal
 from math import sqrt
+import random
 from typing import List
 
 import numpy as np
@@ -16,6 +17,8 @@ class PerformanceMetrics:
         self.dir_acc = self.compute_dir_acc()
         self.rtn_bottom = self.compute_rtn_bottom()
         self.rtn_weighted = self.compute_rtn_weighted()
+        self.rtn_random = self.compute_rtn_random()
+        self.rtn_benchmark = self.compute_rtn_benchmark()
 
     def compute_mse(self):
         se = []
@@ -70,6 +73,8 @@ class PerformanceMetrics:
             chosen_real_returns = [p.real_rtn for p in chosen_preds]
 
             # COMPUTE TOTAL RETURN (EQUALLY WEIGHTED)
+            if len(chosen_real_returns) == 0:
+                return 0
             rtn = sum(chosen_real_returns) / len(chosen_real_returns)
             rtns = np.append(rtns, [float(rtn)])
 
@@ -105,6 +110,55 @@ class PerformanceMetrics:
                 real_rtn.append(weighted_rtn)
 
             rtn = sum(real_rtn)
+            rtns = np.append(rtns, [float(rtn)])
+
+        total_rtn = (rtns + 1).cumprod() - 1
+
+        if len(total_rtn) == 0:
+            return 0
+
+        return Decimal(total_rtn[-1])
+
+    def compute_rtn_random(self):
+        rtns = np.array([], dtype=float)
+        dates = sorted(set(p.datadate for p in self.predictions))
+        for d in dates:
+            preds = [p for p in self.predictions if p.datadate == d]
+            if len(preds) > 20:
+                chosen_preds = random.sample(preds, 20)
+            else:
+                chosen_preds = preds
+
+            for p in self.predictions:
+                if p in chosen_preds:
+                    p.choose_random()
+
+            chosen_real_returns = [p.real_rtn for p in chosen_preds]
+
+            # COMPUTE TOTAL RETURN (EQUALLY WEIGHTED)
+            if len(chosen_real_returns) == 0:
+                return 0
+            rtn = sum(chosen_real_returns) / len(chosen_real_returns)
+            rtns = np.append(rtns, [float(rtn)])
+
+        total_rtn = (rtns + 1).cumprod() - 1
+
+        if len(total_rtn) == 0:
+            return 0
+        return Decimal(total_rtn[-1])
+
+    def compute_rtn_benchmark(self):
+        rtns = np.array([], dtype=float)
+        dates = sorted(set(p.datadate for p in self.predictions))
+        for d in dates:
+            preds = [p for p in self.predictions if p.datadate == d]
+
+            chosen_real_returns = [p.real_rtn for p in preds]
+
+            # COMPUTE TOTAL RETURN (EQUALLY WEIGHTED)
+            if len(chosen_real_returns) == 0:
+                return 0
+            rtn = sum(chosen_real_returns) / len(chosen_real_returns)
             rtns = np.append(rtns, [float(rtn)])
 
         total_rtn = (rtns + 1).cumprod() - 1
