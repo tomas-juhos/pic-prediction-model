@@ -1,9 +1,8 @@
-CREATE TABLE regression_metrics (
+CREATE TABLE gbm_metrics (
     testing_start       DATE,
     testing_end         DATE,
 
-    model               VARCHAR(20),
-    train_criterion     VARCHAR(20),
+    model_id            BIGINT,
     val_criterion       VARCHAR(20),
 
     rtn_bottom          DECIMAL(18,4),
@@ -14,13 +13,11 @@ CREATE TABLE regression_metrics (
     mae                 DECIMAL(18,6),
     mape                DECIMAL(18,6),
     dir_acc             DECIMAL(18,6),
-    f_pvalue            DECIMAL(18,6),
-    r_sqr               DECIMAL(18,6),
 
     training_start      DATE,
     training_end        DATE,
     validation_start    DATE,
     validation_end      DATE,
 
-    PRIMARY KEY (testing_start, testing_end, model, train_criterion, val_criterion)
+    PRIMARY KEY (testing_start, testing_end, model_id, val_criterion)
 );

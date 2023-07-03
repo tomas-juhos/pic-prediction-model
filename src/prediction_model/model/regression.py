@@ -1,15 +1,14 @@
-from datetime import datetime
 from decimal import Decimal
 import logging
-from typing import List, Tuple
+from typing import List
 
 from prediction_model.data_model import (
     FactorsAll,
-    PerformanceMetrics,
-    Prediction,
+    RegressionPrediction,
     RegressionParameters,
     RegressionMetrics,
 )
+from prediction_model.performance_metrics import PerformanceMetrics
 
 import numpy as np
 import statsmodels.api as sm
@@ -106,7 +105,7 @@ class Regression:
         predictions = []
         for r in data:
             predictions.append(
-                Prediction.build_record(
+                RegressionPrediction.build_record(
                     (
                         self.name,
                         self.train_criterion,
@@ -159,6 +158,10 @@ class RegressionResults:
                 model_eval.rtn_bottom,
                 model_eval.rtn_weighted,
                 model_eval.mse,
+                model_eval.rmse,
+                model_eval.mae,
+                model_eval.mape,
+                model_eval.dir_acc,
                 selected_model.f_pvalue,
                 selected_model.r_sqr,
                 sample.training_start,

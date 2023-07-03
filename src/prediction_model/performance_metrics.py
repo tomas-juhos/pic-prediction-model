@@ -1,4 +1,5 @@
 from decimal import Decimal
+from math import sqrt
 from typing import List
 
 import numpy as np
@@ -6,21 +7,45 @@ import numpy as np
 
 class PerformanceMetrics:
     # LIST OF PREDICTION OBJECTS
-    #
     def __init__(self, predictions: List):
         self.predictions: List = predictions
         self.mse = self.compute_mse()
+        self.rmse = Decimal(sqrt(self.mse))
+        self.mae = self.compute_mae()
+        self.mape = self.compute_mape()
+        self.dir_acc = self.compute_dir_acc()
         self.rtn_bottom = self.compute_rtn_bottom()
         self.rtn_weighted = self.compute_rtn_weighted()
 
     def compute_mse(self):
         se = []
         for p in self.predictions:
-            se.append((Decimal(p.predicted_rtn) - p.real_rtn) ** Decimal(2))
+            se.append((p.predicted_rtn - p.real_rtn) ** Decimal(2))
         if len(se) == 0:
             return 0
         mse = sum(se) / len(se)
         return mse
+
+    def compute_mae(self):
+        er = []
+        for p in self.predictions:
+            er.append(Decimal(abs(p.predicted_rtn - p.real_rtn)))
+        mae = sum(er) / len(er)
+        return mae
+
+    def compute_mape(self):
+        pe = []
+        for p in self.predictions:
+            pe.append(Decimal(abs((p.predicted_rtn - p.real_rtn) / p.real_rtn)))
+        mape = sum(pe) / len(pe)
+        return mape
+
+    def compute_dir_acc(self):
+        acc = []
+        for p in self.predictions:
+            acc.append(p.dir_acc)
+        da = sum(acc) / len(acc)
+        return da
 
     def compute_rtn_bottom(self):
         """Computes total return of bottom 20 rtns based on prediction."""

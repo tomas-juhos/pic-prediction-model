@@ -1,6 +1,5 @@
-CREATE TABLE regression_predictions (
-    model                   VARCHAR(20),
-    train_criterion         VARCHAR(20),
+CREATE TABLE gbm_predictions (
+    model_id                BIGINT,
     val_criterion           VARCHAR(20),
 
     datadate                TIMESTAMP,
@@ -14,5 +13,5 @@ CREATE TABLE regression_predictions (
     chosen_bottom           BOOLEAN,
     chosen_weighted         BOOLEAN,
 
-    PRIMARY KEY (model, train_criterion, val_criterion, datadate, gvkey)
+    PRIMARY KEY (model_id, val_criterion, datadate, gvkey)
 );

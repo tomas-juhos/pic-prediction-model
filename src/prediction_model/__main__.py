@@ -27,21 +27,31 @@ logger = logging.getLogger(__name__)
 class PredictionModel:
     YEARS = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
 
-    optimization_criteria = ["mse", "rtn_bottom", "rtn_weighted"]
+    # MAYBE ADD DIRECTIONAL ACCURACY (dir_acc)
+    # BUT BEWARE THAT OPTIMIZATION MINIMIZES WHICH IS WRONG IN THAT CASE
+    OPTIMIZATION_CRITERIA = ["mse", "rtn_bottom", "rtn_weighted"]
 
-    def __init__(self, mode, normalized_features):
+    def __init__(self):
         self.source = source.Source(os.environ.get("SOURCE"))
         self.target = target.Target(os.environ.get("TARGET"))
 
-        self.mode = mode
-        self.normalized_features = normalized_features
+        self.mode = os.environ.get("MODEL")
+        self.normalized_features = os.environ.get("NORMALIZED_FEATURES")
 
     def run(self):
         """Runs process."""
-        logger.info("Starting process...")
+        logger.info(f"Starting process for {self.mode}...")
         date_ranges = generate_intervals(self.YEARS)
         j = 0
         for date_range in date_ranges:
+            range_start = self.target.get_next_training_start(mode=self.mode)
+            if range_start:
+                if range_start > date_range[0].date():
+                    logger.info(f"Data for {date_range[1].year} was already persisted.")
+                    continue
+                else:
+                    date_range = (range_start, date_range[1])
+
             logger.info("Building history...")
             history = self.build_history(date_range)
             history = self.clean_history(history)
@@ -52,15 +62,15 @@ class PredictionModel:
             logger.info("Organizing data into samples...")
             samples = self.organize_data(available_dates=available_dates)
 
-            logger.info("Running predicitons...")
+            logger.info("Running predictions...")
             for sample in samples:
-                if self.mode == "REGRESSION":
+                if self.mode == "regression":
                     self.run_regression(sample, history)
-                elif self.mode == "LIGHTGBM":
+                elif self.mode == "gbm":
                     self.run_lightgbm(sample, history)
                 else:
                     logger.info(
-                        "No valid running mode was provided (REGRESSION/LIGHTGBM)."
+                        "No valid running mode was provided (regression/gbm)."
                     )
             j += 1
             logger.info(f"Persisted results for {j}/{len(date_ranges)} date ranges.")
@@ -78,10 +88,6 @@ class PredictionModel:
             sample, history
         )
 
-        metrics_records = []
-        prediction_records = []
-        parameters_records = []
-
         models = []
         if not self.normalized_features:
             models.append(
@@ -92,7 +98,7 @@ class PredictionModel:
                 )
             )
 
-        for optimization_criterion in self.optimization_criteria:
+        for optimization_criterion in self.OPTIMIZATION_CRITERIA:
             models.append(
                 pred_model.Regression(
                     model_name="lasso",
@@ -114,7 +120,10 @@ class PredictionModel:
             test_data=testing_data,
         )
 
-        for optimization_criterion in self.optimization_criteria:
+        metrics_records = []
+        prediction_records = []
+        parameters_records = []
+        for optimization_criterion in self.OPTIMIZATION_CRITERIA:
             selected_model = results.select_model(val_criterion=optimization_criterion)
 
             (
@@ -145,23 +154,72 @@ class PredictionModel:
         self.target.commit_transaction()
 
     def run_lightgbm(self, sample, history):
-        # todo implement
         logger.debug("Running regression models.")
         logger.debug(f"Training: {sample.training_start} <-> {sample.training_end}.")
         logger.debug(
             f"Validating: {sample.validation_start} <-> {sample.validation_end}."
         )
         logger.debug(f"Testing: {sample.testing_start} <-> {sample.testing_end}.")
+        logger.debug("--//--")
 
         training_data, validation_data, testing_data = self.get_sample_data(
             sample, history
         )
 
+        model_id = self.target.get_gbm_model_id()
+        models = [pred_model.LightGBM(
+            model_id=model_id,
+            training_data=training_data,
+            randomize_params=False
+        )]
+        for i in range(19):
+            model_id = self.target.get_gbm_model_id()
+            models.append(
+                pred_model.LightGBM(
+                    model_id=model_id,
+                    training_data=training_data,
+                    randomize_params=True
+                )
+            )
+
+        results = pred_model.LightGBMResults(
+            models=models,
+            validation_data=validation_data,
+            test_data=testing_data
+        )
+
         metrics_records = []
         prediction_records = []
         parameters_records = []
+        for optimization_criterion in self.OPTIMIZATION_CRITERIA:
+            selected_model = results.select_model(val_criterion=optimization_criterion)
 
-        pass
+            (
+                model_metrics,
+                model_predictions,
+                model_parameters,
+            ) = results.test_model(
+                sample=sample,
+                val_criterion=optimization_criterion,
+                selected_model=selected_model,
+            )
+
+            metrics_records.append(model_metrics)
+            prediction_records.extend(model_predictions)
+            parameters_records.append(model_parameters)
+
+        metrics_records = [r.as_tuple() for r in metrics_records]
+        prediction_records = [r.as_tuple() for r in prediction_records]
+        parameters_records = [r.as_tuple() for r in parameters_records]
+
+        self.target.execute(queries.GBMMetricsQueries.UPSERT, metrics_records)
+        self.target.execute(
+            queries.GBMPredictionsQueries.UPSERT, prediction_records
+        )
+        self.target.execute(
+            queries.GBMParametersQueries.UPSERT, parameters_records
+        )
+        self.target.commit_transaction()
 
     def build_history(self, date_range) -> Dict[datetime, List[data_model.FactorsAll]]:
         """Loads date range into memory grouped by date, modeled as Factors."""
@@ -262,5 +320,5 @@ class PredictionModel:
         return res
 
 
-prediction_model = PredictionModel(mode="REGRESSION", normalized_features=True)
+prediction_model = PredictionModel()
 prediction_model.run()

@@ -1,5 +1,6 @@
 """Target."""
 
+from datetime import timedelta
 from typing import List, Tuple
 
 import psycopg2
@@ -47,3 +48,26 @@ class Target:
         """
         cursor = self.cursor
         execute_values(cur=cursor, sql=query, argslist=records)
+
+    def get_next_training_start(self, mode):
+        cursor = self.cursor
+        query = (
+            "SELECT MAX(training_start) "
+            "FROM {model}_metrics;"
+        ).format(model=mode)
+
+        cursor.execute(query=query)
+        d = cursor.fetchone()
+
+        return d[0] + timedelta(days=1) if d[0] is not None else None
+
+    def get_gbm_model_id(self):
+        query = (
+            "SELECT NEXTVAL('gbm_model_id_seq');"
+        )
+        cursor = self.cursor
+        cursor.execute(query)
+        model_id = cursor.fetchone()
+
+        return model_id[0]
+

@@ -1,13 +1,12 @@
-"""Regression predictions queries."""
+"""GBM predictions queries."""
 
 
 class Queries:
-    """Regression Predictions queries class."""
+    """GBM Predictions queries class."""
 
     UPSERT = (
-        "INSERT INTO regression_predictions ("
-        "       model, "
-        "       train_criterion, "
+        "INSERT INTO gbm_predictions ("
+        "       model_id, "
         "       val_criterion, "
         "       datadate, "
         "       gvkey, "
@@ -17,10 +16,9 @@ class Queries:
         "       chosen_bottom, "
         "       chosen_weighted "
         ") VALUES %s "
-        "ON CONFLICT (model, train_criterion, val_criterion, datadate, gvkey) DO "
+        "ON CONFLICT (model_id, val_criterion, datadate, gvkey) DO "
         "UPDATE SET "
-        "       model=EXCLUDED.model, "
-        "       train_criterion=EXCLUDED.train_criterion, "
+        "       model_id=EXCLUDED.model_id, "
         "       val_criterion=EXCLUDED.val_criterion, "
         "       datadate=EXCLUDED.datadate, "
         "       gvkey=EXCLUDED.gvkey, "
