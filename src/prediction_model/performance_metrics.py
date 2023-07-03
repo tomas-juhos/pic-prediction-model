@@ -30,6 +30,8 @@ class PerformanceMetrics:
         er = []
         for p in self.predictions:
             er.append(Decimal(abs(p.predicted_rtn - p.real_rtn)))
+        if len(er) == 0:
+            return 0
         mae = sum(er) / len(er)
         return mae
 
@@ -37,6 +39,8 @@ class PerformanceMetrics:
         pe = []
         for p in self.predictions:
             pe.append(Decimal(abs((p.predicted_rtn - p.real_rtn) / p.real_rtn)))
+        if len(pe) == 0:
+            return 0
         mape = sum(pe) / len(pe)
         return mape
 
@@ -44,6 +48,8 @@ class PerformanceMetrics:
         acc = []
         for p in self.predictions:
             acc.append(p.dir_acc)
+        if len(acc) == 0:
+            return 0
         da = sum(acc) / len(acc)
         return da
 
