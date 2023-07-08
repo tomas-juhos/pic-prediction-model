@@ -25,8 +25,8 @@ class Regression:
 
     def __init__(self, model_name, training_data, train_criterion: str):
         self.training_data = training_data
-        self.name = model_name
-        self.train_criterion = train_criterion
+        self.name: str = model_name
+        self.train_criterion: str = train_criterion
         self.model = self.build_models(model_name)
 
     def build_models(self, model_name):
@@ -74,7 +74,7 @@ class Regression:
             models.append((self.model, a, model_eval, model_stats))
 
         chosen_model = min(
-            models, key=lambda item: getattr(item[2], self.train_criterion)
+            models, key=lambda item: getattr(item[2], self.train_criterion.lower())
         )
         self.alpha = chosen_model[1]
         self.beta = [
@@ -135,9 +135,13 @@ class RegressionResults:
             res.append((model, model_eval))
 
         if val_criterion == "dir_acc":
-            chosen_model = max(res, key=lambda item: getattr(item[1], val_criterion))
+            chosen_model = max(
+                res, key=lambda item: getattr(item[1], val_criterion.lower())
+            )
         else:
-            chosen_model = min(res, key=lambda item: getattr(item[1], val_criterion))
+            chosen_model = min(
+                res, key=lambda item: getattr(item[1], val_criterion.lower())
+            )
 
         # ACTUAL MODEL
         return chosen_model[0]
@@ -145,6 +149,7 @@ class RegressionResults:
     def test_model(
         self,
         sample,
+        universe_constr: str,
         val_criterion: str,
         selected_model: Regression,
     ):
@@ -153,11 +158,12 @@ class RegressionResults:
         # MODEL PERFORMANCE METRICS
         metrics = RegressionMetrics.build_record(
             (
+                universe_constr.upper(),
                 sample.testing_start,
                 sample.testing_end,
-                selected_model.name,
-                selected_model.train_criterion,
-                val_criterion,
+                selected_model.name.upper(),
+                selected_model.train_criterion.upper(),
+                val_criterion.upper(),
                 model_eval.rtn_bottom,
                 model_eval.rtn_weighted,
                 model_eval.rtn_random,
@@ -178,16 +184,18 @@ class RegressionResults:
 
         # MODEL PREDICTIONS
         for p in model_eval.predictions:
-            p.set_val_criterion(val_criterion=val_criterion)
+            p.set_val_criterion(val_criterion=val_criterion.upper())
+            p.set_universe_constr(universe_constr=universe_constr.upper())
         predictions = model_eval.predictions
 
         # MODEL PARAMETERS
         key = (
+            universe_constr.upper(),
             sample.testing_start,
             sample.testing_end,
-            selected_model.name,
-            selected_model.train_criterion,
-            val_criterion,
+            selected_model.name.upper(),
+            selected_model.train_criterion.upper(),
+            val_criterion.upper(),
         )
         parameters = RegressionParameters.build_record(
             key, selected_model.alpha, selected_model.beta

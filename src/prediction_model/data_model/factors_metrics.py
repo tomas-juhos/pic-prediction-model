@@ -31,6 +31,7 @@ class FactorsMetrics:
 
     market_cap: Optional[Decimal] = None
     shares_out: Optional[Decimal] = None
+    volume: Optional[Decimal] = None
     rtn: Optional[Decimal] = None
     winsorized_5_rtn: Optional[Decimal] = None
 
@@ -51,11 +52,12 @@ class FactorsMetrics:
         res.loan_rate_min_delta = record[10] if record[10] else 0
         res.loan_rate_range_delta = record[11] if record[11] else 0
         res.loan_rate_stdev_delta = record[12] if record[12] else 0
-        res.short_interest = record[13]
-        res.short_ratio = record[14]
+        res.short_interest = record[13] if record[13] else 0
+        res.short_ratio = record[14] if record[14] else 0
         res.market_cap = record[15]
         res.shares_out = record[16]
+        res.volume = record[17]
         # WINDSORIZED RETURNS BELOW
-        res.rtn = record[18]
+        res.rtn = record[19]
 
         return res

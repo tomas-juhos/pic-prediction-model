@@ -48,6 +48,7 @@ class FactorsAll(Modeling):
 
     market_cap: Optional[Decimal] = None
     shares_out: Optional[Decimal] = None
+    volume: Optional[Decimal] = None
     rtn: Optional[Decimal] = None
 
     @classmethod
@@ -84,6 +85,7 @@ class FactorsAll(Modeling):
 
         res.market_cap = base_record.market_cap
         res.shares_out = base_record.shares_out
+        res.volume = base_record.volume
         # WINDSORIZED RETURNS BELOW
         res.rtn = base_record.rtn
 
@@ -121,6 +123,7 @@ class FactorsAll(Modeling):
         res.short_ratio = array[21]
         res.market_cap = array[22]
         res.shares_out = array[23]
+        res.volume = array[24]
         # WINDSORIZED RETURNS BELOW
         res.rtn = rtn
 
@@ -154,6 +157,7 @@ class FactorsAll(Modeling):
                 self.short_ratio,
                 self.market_cap,
                 self.shares_out,
+                self.volume,
             ],
             dtype=float,
         )
@@ -183,6 +187,7 @@ class FactorsAll(Modeling):
         return (
             f"{self.datadate}, "
             f"{self.gvkey}, "
-            f"{self.loan_rate_avg}, "
-            f"{self.rtn}"
+            f"lr: {self.loan_rate_avg}, "
+            f"si: {self.short_interest}, "
+            f"rtn: {self.rtn}"
         )

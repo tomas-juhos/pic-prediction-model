@@ -3,6 +3,8 @@ from decimal import Decimal
 
 
 class GBMMetrics:
+    universe_constr: str
+
     testing_start: datetime
     testing_end: datetime
     model_id: int
@@ -29,31 +31,33 @@ class GBMMetrics:
     def build_record(cls, record) -> "GBMMetrics":
         res = cls()
 
-        res.testing_start = record[0]
-        res.testing_end = record[1]
-        res.model_id = record[2]
-        res.val_criterion = record[3]
+        res.universe_constr = record[0]
+        res.testing_start = record[1]
+        res.testing_end = record[2]
+        res.model_id = record[3]
+        res.val_criterion = record[4]
 
-        res.rtn_bottom = record[4]
-        res.rtn_weighted = record[5]
-        res.rtn_random = record[6]
-        res.rtn_benchmark = record[7]
+        res.rtn_bottom = record[5]
+        res.rtn_weighted = record[6]
+        res.rtn_random = record[7]
+        res.rtn_benchmark = record[8]
 
-        res.mse = record[8]
-        res.rmse = record[9]
-        res.mae = record[10]
-        res.mape = record[11]
-        res.dir_acc = record[12]
+        res.mse = record[9]
+        res.rmse = record[10]
+        res.mae = record[11]
+        res.mape = record[12]
+        res.dir_acc = record[13]
 
-        res.training_start = record[13]
-        res.training_end = record[14]
-        res.validation_start = record[15]
-        res.validation_end = record[16]
+        res.training_start = record[14]
+        res.training_end = record[15]
+        res.validation_start = record[16]
+        res.validation_end = record[17]
 
         return res
 
     def as_tuple(self):
         return (
+            self.universe_constr,
             self.testing_start,
             self.testing_end,
             self.model_id,

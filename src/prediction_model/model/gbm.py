@@ -1,6 +1,11 @@
 from typing import List
 
-from prediction_model.data_model import FactorsAll, GBMPrediction, GBMParameters, GBMMetrics
+from prediction_model.data_model import (
+    FactorsAll,
+    GBMPrediction,
+    GBMParameters,
+    GBMMetrics,
+)
 from prediction_model.performance_metrics import PerformanceMetrics
 
 import lightgbm
@@ -45,9 +50,7 @@ class LightGBM:
             self.x_train,
             label=self.y_train,
         )
-        model = lightgbm.train(
-            self.params, train_data, early_stopping_rounds=0
-        )
+        model = lightgbm.train(self.params, train_data, early_stopping_rounds=0)
         return model
 
     def evaluate(self, data: List[FactorsAll]) -> PerformanceMetrics:
@@ -100,28 +103,34 @@ class LightGBMResults:
             res.append((model, model_eval))
 
         if val_criterion == "dir_acc":
-            chosen_model = max(res, key=lambda item: getattr(item[1], val_criterion))
+            chosen_model = max(
+                res, key=lambda item: getattr(item[1], val_criterion.lower())
+            )
         else:
-            chosen_model = min(res, key=lambda item: getattr(item[1], val_criterion))
+            chosen_model = min(
+                res, key=lambda item: getattr(item[1], val_criterion.lower())
+            )
 
         # ACTUAL MODEL
         return chosen_model[0]
 
     def test_model(
-            self,
-            sample,
-            val_criterion: str,
-            selected_model: LightGBM,
+        self,
+        sample,
+        universe_constr: str,
+        val_criterion: str,
+        selected_model: LightGBM,
     ):
         model_eval: PerformanceMetrics = selected_model.evaluate(self.testing_data)
 
         # MODEL PERFORMANCE METRICS
         metrics = GBMMetrics.build_record(
             (
+                universe_constr.upper(),
                 sample.testing_start,
                 sample.testing_end,
                 selected_model.model_id,
-                val_criterion,
+                val_criterion.upper(),
                 model_eval.rtn_bottom,
                 model_eval.rtn_weighted,
                 model_eval.rtn_random,
@@ -140,18 +149,18 @@ class LightGBMResults:
 
         # MODEL PREDICTIONS
         for p in model_eval.predictions:
-            p.set_val_criterion(val_criterion=val_criterion)
+            p.set_val_criterion(val_criterion=val_criterion.upper())
+            p.set_universe_constr(universe_constr=universe_constr.upper())
         predictions = model_eval.predictions
 
         # MODEL PARAMETERS
         key = (
+            universe_constr.upper(),
             sample.testing_start,
             sample.testing_end,
             selected_model.model_id,
-            val_criterion,
+            val_criterion.upper(),
         )
-        parameters = GBMParameters.build_record(
-            key, selected_model.params
-        )
+        parameters = GBMParameters.build_record(key, selected_model.params)
 
         return metrics, predictions, parameters

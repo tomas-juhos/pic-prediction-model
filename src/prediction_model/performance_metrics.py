@@ -41,6 +41,8 @@ class PerformanceMetrics:
     def compute_mape(self):
         pe = []
         for p in self.predictions:
+            if p.real_rtn == 0:
+                return 0
             pe.append(Decimal(abs((p.predicted_rtn - p.real_rtn) / p.real_rtn)))
         if len(pe) == 0:
             return 0

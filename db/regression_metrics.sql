@@ -1,4 +1,5 @@
 CREATE TABLE regression_metrics (
+    universe_constr     VARCHAR(50),
     testing_start       DATE,
     testing_end         DATE,
 
@@ -24,5 +25,5 @@ CREATE TABLE regression_metrics (
     validation_start    DATE,
     validation_end      DATE,
 
-    PRIMARY KEY (testing_start, testing_end, model, train_criterion, val_criterion)
+    PRIMARY KEY (universe_constr, testing_start, testing_end, model, train_criterion, val_criterion)
 );

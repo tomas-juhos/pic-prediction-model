@@ -1,4 +1,6 @@
 CREATE TABLE regression_parameters (
+    universe_constr             VARCHAR(50),
+
     testing_start               DATE,
     testing_end                 DATE,
 
@@ -32,6 +34,7 @@ CREATE TABLE regression_parameters (
     short_ratio                 DECIMAL(20,6),
     market_cap                  DECIMAL(20,6),
     shares_out                  DECIMAL(20,6),
+    volume                      DECIMAL(20,6),
 
-    PRIMARY KEY (testing_start, testing_end, model, train_criterion, val_criterion)
+    PRIMARY KEY (universe_constr, testing_start, testing_end, model, train_criterion, val_criterion)
 );

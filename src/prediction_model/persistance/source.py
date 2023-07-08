@@ -42,7 +42,7 @@ class Source:
             "SELECT * "
             "FROM {table} "
             "WHERE datadate BETWEEN %s AND %s "
-            "AND market_cap BETWEEN 100 AND 1000;"
+            "AND market_cap <= 1000;"
         ).format(table=table)
         cursor.execute(query=query_base, vars=date_range)
         records = cursor.fetchall()

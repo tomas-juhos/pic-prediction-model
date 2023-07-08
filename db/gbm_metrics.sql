@@ -1,4 +1,5 @@
 CREATE TABLE gbm_metrics (
+    universe_constr     VARCHAR(50),
     testing_start       DATE,
     testing_end         DATE,
 
@@ -21,5 +22,5 @@ CREATE TABLE gbm_metrics (
     validation_start    DATE,
     validation_end      DATE,
 
-    PRIMARY KEY (testing_start, testing_end, model_id, val_criterion)
+    PRIMARY KEY (universe_constr, testing_start, testing_end, model_id, val_criterion)
 );

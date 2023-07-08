@@ -6,6 +6,7 @@ class Queries:
 
     UPSERT = (
         "INSERT INTO gbm_metrics ("
+        "       universe_constr, "
         "       testing_start, "
         "       testing_end, "
         "       model_id, "
@@ -24,8 +25,9 @@ class Queries:
         "       validation_start, "
         "       validation_end "
         ") VALUES %s "
-        "ON CONFLICT (testing_start, testing_end, model_id, val_criterion) DO "
+        "ON CONFLICT (universe_constr, testing_start, testing_end, model_id, val_criterion) DO "
         "UPDATE SET "
+        "       universe_constr=EXCLUDED.universe_constr, "
         "       testing_start=EXCLUDED.testing_start, "
         "       testing_end=EXCLUDED.testing_end, "
         "       model_id=EXCLUDED.model_id, "

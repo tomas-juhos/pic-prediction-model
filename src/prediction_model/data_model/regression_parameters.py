@@ -4,6 +4,7 @@ from typing import Optional
 
 
 class RegressionParameters:
+    universe_constr: str
     testing_start: datetime
     testing_end: datetime
     model: str
@@ -35,15 +36,17 @@ class RegressionParameters:
     short_ratio: Optional[Decimal]
     market_cap: Optional[Decimal]
     shares_out: Optional[Decimal]
+    volume: Optional[Decimal]
 
     @classmethod
     def build_record(cls, key, alpha, beta):
         res = cls()
-        res.testing_start = key[0]
-        res.testing_end = key[1]
-        res.model = key[2]
-        res.train_criterion = key[3]
-        res.val_criterion = key[4]
+        res.universe_constr = key[0]
+        res.testing_start = key[1]
+        res.testing_end = key[2]
+        res.model = key[3]
+        res.train_criterion = key[4]
+        res.val_criterion = key[5]
 
         res.alpha = alpha
         res.utilization_pct = beta[0]
@@ -70,11 +73,13 @@ class RegressionParameters:
         res.short_ratio = beta[21]
         res.market_cap = beta[22]
         res.shares_out = beta[23]
+        res.volume = beta[24]
 
         return res
 
     def as_tuple(self):
         return (
+            self.universe_constr,
             self.testing_start,
             self.testing_end,
             self.model,
@@ -105,4 +110,5 @@ class RegressionParameters:
             self.short_ratio,
             self.market_cap,
             self.shares_out,
+            self.volume,
         )

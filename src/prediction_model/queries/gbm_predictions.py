@@ -6,6 +6,7 @@ class Queries:
 
     UPSERT = (
         "INSERT INTO gbm_predictions ("
+        "       universe_constr, "
         "       model_id, "
         "       val_criterion, "
         "       datadate, "
@@ -17,8 +18,9 @@ class Queries:
         "       chosen_weighted, "
         "       chosen_random "
         ") VALUES %s "
-        "ON CONFLICT (model_id, val_criterion, datadate, gvkey) DO "
+        "ON CONFLICT (universe_constr, model_id, val_criterion, datadate, gvkey) DO "
         "UPDATE SET "
+        "       universe_constr=EXCLUDED.universe_constr, "
         "       model_id=EXCLUDED.model_id, "
         "       val_criterion=EXCLUDED.val_criterion, "
         "       datadate=EXCLUDED.datadate, "

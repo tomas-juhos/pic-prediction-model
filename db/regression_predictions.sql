@@ -1,4 +1,6 @@
 CREATE TABLE regression_predictions (
+    universe_constr         VARCHAR(50),
+
     model                   VARCHAR(20),
     train_criterion         VARCHAR(20),
     val_criterion           VARCHAR(20),
@@ -15,5 +17,5 @@ CREATE TABLE regression_predictions (
     chosen_weighted         BOOLEAN,
     chosen_random           BOOLEAN,
 
-    PRIMARY KEY (model, train_criterion, val_criterion, datadate, gvkey)
+    PRIMARY KEY (universe_constr, model, train_criterion, val_criterion, datadate, gvkey)
 );

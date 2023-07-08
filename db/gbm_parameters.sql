@@ -1,4 +1,5 @@
 CREATE TABLE gbm_parameters (
+    universe_constr             VARCHAR(50),
     testing_start               DATE,
     testing_end                 DATE,
 
@@ -9,9 +10,6 @@ CREATE TABLE gbm_parameters (
     num_leaves                  INTEGER,
     min_data_in_leaf            INTEGER,
     seed                        INTEGER,
-    -- time_steps                  INTEGER,
-    -- "verbose"                   INTEGER,
 
-
-    PRIMARY KEY (testing_start, testing_end, model_id, val_criterion)
+    PRIMARY KEY (universe_constr, testing_start, testing_end, model_id, val_criterion)
 );

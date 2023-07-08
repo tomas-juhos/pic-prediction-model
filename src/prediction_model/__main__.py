@@ -27,25 +27,31 @@ logger = logging.getLogger(__name__)
 class PredictionModel:
     YEARS = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
 
-    OPTIMIZATION_CRITERIA = ["mse", "dir_acc", "rtn_bottom", "rtn_weighted"]
+    OPTIMIZATION_CRITERIA = ["MSE", "DIR_ACC", "RTN_BOTTOM", "RTN_WEIGHTED"]
 
     def __init__(self):
         self.source = source.Source(os.environ.get("SOURCE"))
         self.target = target.Target(os.environ.get("TARGET"))
 
+        self.universe_constr = os.environ.get("UNIVERSE_CONSTR")
         self.mode = os.environ.get("MODEL")
         self.normalized_features = os.environ.get("NORMALIZED_FEATURES")
 
     def run(self):
         """Runs process."""
-        logger.info(f"Starting process for {self.mode}...")
+        logger.info(
+            f"Starting process for {self.mode.upper()}/{self.universe_constr.upper()}..."
+        )
         date_ranges = generate_intervals(self.YEARS)
         j = 0
         for date_range in date_ranges:
-            range_start = self.target.get_next_training_start(mode=self.mode)
+            range_start = self.target.get_next_training_start(
+                universe_constr=self.universe_constr.upper(), mode=self.mode.upper()
+            )
             if range_start:
-                if range_start > date_range[0].date():
+                if range_start > date_range[1].date():
                     logger.info(f"Data for {date_range[1].year} was already persisted.")
+                    j += 1
                     continue
                 else:
                     date_range = (range_start, date_range[1])
@@ -67,9 +73,7 @@ class PredictionModel:
                 elif self.mode == "gbm":
                     self.run_lightgbm(sample, history)
                 else:
-                    logger.info(
-                        "No valid running mode was provided (regression/gbm)."
-                    )
+                    logger.info("No valid running mode was provided (regression/gbm).")
             j += 1
             logger.info(f"Persisted results for {j}/{len(date_ranges)} date ranges.")
 
@@ -130,6 +134,7 @@ class PredictionModel:
                 model_parameters,
             ) = results.test_model(
                 sample=sample,
+                universe_constr=self.universe_constr,
                 val_criterion=optimization_criterion,
                 selected_model=selected_model,
             )
@@ -165,25 +170,23 @@ class PredictionModel:
         )
 
         model_id = self.target.get_gbm_model_id()
-        models = [pred_model.LightGBM(
-            model_id=model_id,
-            training_data=training_data,
-            randomize_params=False
-        )]
-        for i in range(19):
+        models = [
+            pred_model.LightGBM(
+                model_id=model_id, training_data=training_data, randomize_params=False
+            )
+        ]
+        for i in range(9):
             model_id = self.target.get_gbm_model_id()
             models.append(
                 pred_model.LightGBM(
                     model_id=model_id,
                     training_data=training_data,
-                    randomize_params=True
+                    randomize_params=True,
                 )
             )
 
         results = pred_model.LightGBMResults(
-            models=models,
-            validation_data=validation_data,
-            test_data=testing_data
+            models=models, validation_data=validation_data, test_data=testing_data
         )
 
         metrics_records = []
@@ -198,6 +201,7 @@ class PredictionModel:
                 model_parameters,
             ) = results.test_model(
                 sample=sample,
+                universe_constr=self.universe_constr,
                 val_criterion=optimization_criterion,
                 selected_model=selected_model,
             )
@@ -211,12 +215,8 @@ class PredictionModel:
         parameters_records = [r.as_tuple() for r in parameters_records]
 
         self.target.execute(queries.GBMMetricsQueries.UPSERT, metrics_records)
-        self.target.execute(
-            queries.GBMPredictionsQueries.UPSERT, prediction_records
-        )
-        self.target.execute(
-            queries.GBMParametersQueries.UPSERT, parameters_records
-        )
+        self.target.execute(queries.GBMPredictionsQueries.UPSERT, prediction_records)
+        self.target.execute(queries.GBMParametersQueries.UPSERT, parameters_records)
         self.target.commit_transaction()
 
     def build_history(self, date_range) -> Dict[datetime, List[data_model.FactorsAll]]:
@@ -264,12 +264,13 @@ class PredictionModel:
             records.extend(temp[:100])
         return records
 
-    @staticmethod
-    def clean_history(history: Dict[datetime, List[data_model.FactorsAll]]):
+    def clean_history(self, history: Dict[datetime, List[data_model.FactorsAll]]):
         res = {}
         for d in history.keys():
             records = [r for r in history[d] if r.is_complete]
-            records.sort(key=lambda x: getattr(x, "loan_rate_avg"), reverse=True)
+            records.sort(
+                key=lambda x: getattr(x, self.universe_constr.lower()), reverse=True
+            )
             res[d] = records[:100]
         return res
 

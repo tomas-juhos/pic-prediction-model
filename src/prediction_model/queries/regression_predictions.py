@@ -6,6 +6,7 @@ class Queries:
 
     UPSERT = (
         "INSERT INTO regression_predictions ("
+        "       universe_constr, "
         "       model, "
         "       train_criterion, "
         "       val_criterion, "
@@ -18,8 +19,9 @@ class Queries:
         "       chosen_weighted, "
         "       chosen_random "
         ") VALUES %s "
-        "ON CONFLICT (model, train_criterion, val_criterion, datadate, gvkey) DO "
+        "ON CONFLICT (universe_constr, model, train_criterion, val_criterion, datadate, gvkey) DO "
         "UPDATE SET "
+        "       universe_constr=EXCLUDED.universe_constr, "
         "       model=EXCLUDED.model, "
         "       train_criterion=EXCLUDED.train_criterion, "
         "       val_criterion=EXCLUDED.val_criterion, "

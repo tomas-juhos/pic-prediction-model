@@ -6,6 +6,7 @@ class Queries:
 
     UPSERT = (
         "INSERT INTO regression_parameters ("
+        "       universe_constr, "
         "       testing_start, "
         "       testing_end, "
         "       model, "
@@ -35,10 +36,12 @@ class Queries:
         "       short_interest, "
         "       short_ratio, "
         "       market_cap, "
-        "       shares_out "
+        "       shares_out, "
+        "       volume "
         ") VALUES %s "
-        "ON CONFLICT (testing_start, testing_end, model, train_criterion, val_criterion) DO "
+        "ON CONFLICT (universe_constr, testing_start, testing_end, model, train_criterion, val_criterion) DO "
         "UPDATE SET "
+        "       universe_constr=EXCLUDED.universe_constr, "
         "       testing_start=EXCLUDED.testing_start, "
         "       testing_end=EXCLUDED.testing_end, "
         "       model=EXCLUDED.model, "
@@ -68,5 +71,6 @@ class Queries:
         "       short_interest=EXCLUDED.short_interest, "
         "       short_ratio=EXCLUDED.short_ratio, "
         "       market_cap=EXCLUDED.market_cap, "
-        "       shares_out=EXCLUDED.shares_out; "
+        "       shares_out=EXCLUDED.shares_out, "
+        "       volume=EXCLUDED.volume; "
     )

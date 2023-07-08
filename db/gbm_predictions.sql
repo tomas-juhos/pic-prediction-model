@@ -1,4 +1,5 @@
 CREATE TABLE gbm_predictions (
+    universe_constr         VARCHAR(50),
     model_id                BIGINT,
     val_criterion           VARCHAR(20),
 
@@ -14,5 +15,5 @@ CREATE TABLE gbm_predictions (
     chosen_weighted         BOOLEAN,
     chosen_random           BOOLEAN,
 
-    PRIMARY KEY (model_id, val_criterion, datadate, gvkey)
+    PRIMARY KEY (universe_constr, model_id, val_criterion, datadate, gvkey)
 );

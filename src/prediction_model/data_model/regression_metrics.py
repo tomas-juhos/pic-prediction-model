@@ -3,6 +3,7 @@ from decimal import Decimal
 
 
 class RegressionMetrics:
+    universe_constr: str
     testing_start: datetime
     testing_end: datetime
     model: str
@@ -32,34 +33,36 @@ class RegressionMetrics:
     def build_record(cls, record) -> "RegressionMetrics":
         res = cls()
 
-        res.testing_start = record[0]
-        res.testing_end = record[1]
-        res.model = record[2]
-        res.train_criterion = record[3]
-        res.val_criterion = record[4]
+        res.universe_constr = record[0]
+        res.testing_start = record[1]
+        res.testing_end = record[2]
+        res.model = record[3]
+        res.train_criterion = record[4]
+        res.val_criterion = record[5]
 
-        res.rtn_bottom = record[5]
-        res.rtn_weighted = record[6]
-        res.rtn_random = record[7]
-        res.rtn_benchmark = record[8]
+        res.rtn_bottom = record[6]
+        res.rtn_weighted = record[7]
+        res.rtn_random = record[8]
+        res.rtn_benchmark = record[9]
 
-        res.mse = record[9]
-        res.rmse = record[10]
-        res.mae = record[11]
-        res.mape = record[12]
-        res.dir_acc = record[13]
-        res.f_pvalue = record[14]
-        res.r_sqr = record[15]
+        res.mse = record[10]
+        res.rmse = record[11]
+        res.mae = record[12]
+        res.mape = record[13]
+        res.dir_acc = record[14]
+        res.f_pvalue = record[15]
+        res.r_sqr = record[16]
 
-        res.training_start = record[16]
-        res.training_end = record[17]
-        res.validation_start = record[18]
-        res.validation_end = record[19]
+        res.training_start = record[17]
+        res.training_end = record[18]
+        res.validation_start = record[19]
+        res.validation_end = record[20]
 
         return res
 
     def as_tuple(self):
         return (
+            self.universe_constr,
             self.testing_start,
             self.testing_end,
             self.model,

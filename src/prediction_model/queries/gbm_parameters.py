@@ -6,6 +6,7 @@ class Queries:
 
     UPSERT = (
         "INSERT INTO gbm_parameters ("
+        "       universe_constr, "
         "       testing_start, "
         "       testing_end, "
         "       model_id, "
@@ -14,11 +15,10 @@ class Queries:
         "       num_leaves, "
         "       min_data_in_leaf, "
         "       seed "
-        #  "       time_steps, "
-        #  '       "verbose"'
         ") VALUES %s "
-        "ON CONFLICT (testing_start, testing_end, model_id, val_criterion) DO "
+        "ON CONFLICT (universe_constr, testing_start, testing_end, model_id, val_criterion) DO "
         "UPDATE SET "
+        "       universe_constr=EXCLUDED.universe_constr, "
         "       testing_start=EXCLUDED.testing_start, "
         "       testing_end=EXCLUDED.testing_end, "
         "       model_id=EXCLUDED.model_id, "
@@ -27,6 +27,4 @@ class Queries:
         "       num_leaves=EXCLUDED.num_leaves, "
         "       min_data_in_leaf=EXCLUDED.min_data_in_leaf, "
         "       seed=EXCLUDED.seed; "
-        #  "       time_steps=EXCLUDED.time_steps, "
-        #  '       "verbose"=EXCLUDED."verbose"; '
     )

@@ -4,6 +4,7 @@ from typing import Optional
 
 
 class RegressionPrediction:
+    universe_constr: str = None
     model: str
     train_criterion: str
     val_criterion: str = None
@@ -25,7 +26,9 @@ class RegressionPrediction:
         res.gvkey = record[3]
         res.predicted_rtn = Decimal(record[4])
         res.real_rtn = record[5]
-        if (res.predicted_rtn > 0 and res.real_rtn > 0) or (res.predicted_rtn < 0 and res.real_rtn < 0):
+        if (res.predicted_rtn > 0 and res.real_rtn > 0) or (
+            res.predicted_rtn < 0 and res.real_rtn < 0
+        ):
             res.dir_acc = 1
         else:
             res.dir_acc = 0
@@ -36,8 +39,13 @@ class RegressionPrediction:
         # THE VALIDATION CRITERION IS ONLY SET IN THE TESTING STAGE
         self.val_criterion = val_criterion
 
+    def set_universe_constr(self, universe_constr):
+        # THE UNIVERSE CONSTRAINT IS ONLY SET IN THE TESTING STAGE
+        self.universe_constr = universe_constr
+
     def as_tuple(self):
         return (
+            self.universe_constr,
             self.model,
             self.train_criterion,
             self.val_criterion,
@@ -58,4 +66,4 @@ class RegressionPrediction:
         self.chosen_weighted = True
 
     def choose_random(self):
-        self.chosen_weighted = True
+        self.chosen_random = True
